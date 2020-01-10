@@ -2,7 +2,7 @@
 Summary: PDF rendering library
 Name: poppler
 Version: 0.12.4
-Release: 4%{?dist}.1
+Release: 5%{?dist}.1
 License: GPLv2
 Group: Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -36,9 +36,12 @@ Patch102: poppler-0.12.4-CVE-2010-3703.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=638960
 Patch103: poppler-0.12.4-CVE-2010-3704.patch
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1227398
+# https://bugzilla.redhat.com/show_bug.cgi?id=1191907
 Patch104: poppler-0.12.4-string-annots.patch
 Patch105: poppler-0.12.4-captions.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1289489
+Patch106: poppler-0.12.4-embed-type1-fonts.patch
 
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
@@ -155,6 +158,7 @@ converting PDF files to a number of other formats.
 %patch103 -p1 -b .CVE-2010-3704
 %patch104 -p1 -b .string-annots
 %patch105 -p1 -b .captions
+%patch106 -p1 -b .embed-type1-fonts
 
 chmod -x goo/GooTimer.h
 
@@ -258,9 +262,13 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Tue Jun  2 2015 Marek Kasik <mkasik@redhat.com> - 0.12.4-4.el6.1
+* Fri Dec 11 2015 Marek Kasik <mkasik@redhat.com> - 0.12.4-5.el6_7.1
+- Embed Type1 fonts to PostScript files without PFB headers
+- Resolves: #1289489
+
+* Tue Jun  2 2015 Marek Kasik <mkasik@redhat.com> - 0.12.4-5
 - Fix captions of push button fields.
-- Resolves: #1227398
+- Resolves: #1191907
 
 * Wed Oct  6 2010 Marek Kasik <mkasik@redhat.com> - 0.12.4-4
 - Add poppler-0.12.4-CVE-2010-3702.patch
