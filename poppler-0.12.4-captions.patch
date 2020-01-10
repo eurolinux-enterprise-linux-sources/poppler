@@ -1,0 +1,49 @@
+commit e927384897595f1bda5f7e41b552602f9cc8ed95
+Author: Pino Toscano <pino@kde.org>
+Date:   Sun Feb 27 16:39:59 2011 +0100
+
+    [qt4] fix caption of push button fields
+    
+    instead of asking the 'onStr' of the underlying form widget,
+    take (if available) the 'MK' entry, i.e. the appearance characteristics dictionary,
+    and use the normal caption of that
+
+diff --git a/qt4/src/poppler-form.cc b/qt4/src/poppler-form.cc
+index 40376e5..5c54681 100644
+--- a/qt4/src/poppler-form.cc
++++ b/qt4/src/poppler-form.cc
+@@ -200,11 +200,29 @@ FormFieldButton::ButtonType FormFieldButton::buttonType() const
+ QString FormFieldButton::caption() const
+ {
+   FormWidgetButton* fwb = static_cast<FormWidgetButton*>(m_formData->fm);
+-  // HACK push buttons seems to have a null GooString for the caption
+-  if (fwb->getButtonType() == formButtonPush)
+-    return QString();
+-
+-  return fwb->getOnStr() ? QString::fromUtf8(fwb->getOnStr()) : QString();
++  QString ret;
++  if (fwb->getButtonType() == formButtonPush)
++  {
++    Dict *dict = m_formData->fm->getObj()->getDict();
++    Object obj1;
++    if (dict->lookup("MK", &obj1)->isDict())
++    {
++      AnnotAppearanceCharacs appearCharacs(obj1.getDict());
++      if (appearCharacs.getNormalCaption())
++      {
++        ret = UnicodeParsedString(appearCharacs.getNormalCaption());
++      }
++    }
++    obj1.free();
++  }
++  else
++  {
++    if (char *goo = fwb->getOnStr())
++    {
++      ret = QString::fromUtf8(goo);
++    }
++  }
++  return ret;
+ }
+ 
+ bool FormFieldButton::state() const

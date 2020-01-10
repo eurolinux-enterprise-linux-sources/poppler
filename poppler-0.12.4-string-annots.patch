@@ -1,0 +1,39 @@
+commit 5b24ee2c934feea1b7d46c8ec423d1c547258be2
+Author: Pino Toscano <pino@kde.org>
+Date:   Sun Feb 27 16:24:22 2011 +0100
+
+    annots: 'CA', 'RC' and 'AC' are strings, not names
+
+diff --git a/poppler/Annot.cc b/poppler/Annot.cc
+index 7c0ba8d..1475db3 100644
+--- a/poppler/Annot.cc
++++ b/poppler/Annot.cc
+@@ -790,22 +790,22 @@ AnnotAppearanceCharacs::AnnotAppearanceCharacs(Dict *dict) {
+   }
+   obj1.free();
+ 
+-  if (dict->lookup("CA", &obj1)->isName()) {
+-    normalCaption = new GooString(obj1.getName());
++  if (dict->lookup("CA", &obj1)->isString()) {
++    normalCaption = new GooString(obj1.getString());
+   } else {
+     normalCaption = NULL;
+   }
+   obj1.free();
+ 
+-  if (dict->lookup("RC", &obj1)->isName()) {
+-    rolloverCaption = new GooString(obj1.getName());
++  if (dict->lookup("RC", &obj1)->isString()) {
++    rolloverCaption = new GooString(obj1.getString());
+   } else {
+     rolloverCaption = NULL;
+   }
+   obj1.free();
+ 
+-  if (dict->lookup("AC", &obj1)->isName()) {
+-    alternateCaption = new GooString(obj1.getName());
++  if (dict->lookup("AC", &obj1)->isString()) {
++    alternateCaption = new GooString(obj1.getString());
+   } else {
+     alternateCaption = NULL;
+   }
