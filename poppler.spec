@@ -2,7 +2,7 @@
 Summary: PDF rendering library
 Name: poppler
 Version: 0.12.4
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: GPLv2
 Group: Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -57,6 +57,8 @@ Patch110: poppler-0.12.4-zero-width-lines.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1302365
 Patch111: poppler-0.12.4-streams-without-lengths.patch
+
+Patch112: CVE-2017-9776.patch
 
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
@@ -179,6 +181,7 @@ converting PDF files to a number of other formats.
 %patch109 -p1 -b .identify-font-from-stream
 %patch110 -p1 -b .zero-width-lines
 %patch111 -p1 -b .streams-without-lengths
+%patch112 -p1 -b .CVE-2017-9776
 
 chmod -x goo/GooTimer.h
 
@@ -282,6 +285,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 10 2017 Caolán McNamara <caolanm@redhat.com> - 0.12.4-12
+- Resolves: rhbz#1479815 CVE-2017-9776
+
 * Thu Sep 29 2016 Marek Kasik <mkasik@redhat.com> - 0.12.4-11
 - Don't crash on streams without Length
 - Resolves: #1302365
