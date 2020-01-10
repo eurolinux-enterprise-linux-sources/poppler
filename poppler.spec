@@ -2,7 +2,7 @@
 Summary: PDF rendering library
 Name: poppler
 Version: 0.12.4
-Release: 5%{?dist}.1
+Release: 10%{?dist}
 License: GPLv2
 Group: Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -40,8 +40,20 @@ Patch103: poppler-0.12.4-CVE-2010-3704.patch
 Patch104: poppler-0.12.4-string-annots.patch
 Patch105: poppler-0.12.4-captions.patch
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1289489
-Patch106: poppler-0.12.4-embed-type1-fonts.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=710816
+Patch106: poppler-0.12.4-illegal-entry-bfrange.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=614824
+Patch107: poppler-0.12.4-fix-line-selection.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1232210
+Patch108: poppler-0.12.4-embed-type1-fonts.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1208719
+Patch109: poppler-0.12.4-identify-font-from-stream.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1316163
+Patch110: poppler-0.12.4-zero-width-lines.patch
 
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
@@ -158,7 +170,11 @@ converting PDF files to a number of other formats.
 %patch103 -p1 -b .CVE-2010-3704
 %patch104 -p1 -b .string-annots
 %patch105 -p1 -b .captions
-%patch106 -p1 -b .embed-type1-fonts
+%patch106 -p1 -b .illegal-entry-bfrange
+%patch107 -p1 -b .fix-line-selection
+%patch108 -p1 -b .embed-type1-fonts
+%patch109 -p1 -b .identify-font-from-stream
+%patch110 -p1 -b .zero-width-lines
 
 chmod -x goo/GooTimer.h
 
@@ -262,9 +278,25 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Fri Dec 11 2015 Marek Kasik <mkasik@redhat.com> - 0.12.4-5.el6_7.1
-- Embed Type1 fonts to PostScript files without PFB headers
-- Resolves: #1289489
+* Fri Mar 11 2016 Marek Kasik <mkasik@redhat.com> - 0.12.4-10
+- Use better default pixel size for printing of 0 width lines
+- Resolves: #1316163
+
+* Wed Dec 09 2015 Martin Hatina <mhatina@redhat.com> - 0.12.4-9
+- Identification of fonts directly from streams and files
+- Resolves: #1208719
+
+* Tue Dec 01 2015 Martin Hatina <mhatina@redhat.com> - 0.12.4-8
+- Embed type1 fonts to PostScript files correctly
+- Resolves: #1232210
+
+* Mon Nov 30 2015 Martin Hatina <mhatina@redhat.com> - 0.12.4-7
+- Fix lines disappearing when selecting paragraph
+- Resolves: #614824
+
+* Thu Nov 26 2015 Martin Hatina <mhatina@redhat.com> - 0.12.4-6
+- Silence illegal entry in bfrange block in ToUnicode CMap
+- Resolves: #710816
 
 * Tue Jun  2 2015 Marek Kasik <mkasik@redhat.com> - 0.12.4-5
 - Fix captions of push button fields.

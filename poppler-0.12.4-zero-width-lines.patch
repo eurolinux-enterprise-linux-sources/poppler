@@ -1,0 +1,27 @@
+From c043f298e68bdfffcb7505ec354ec7487b5bd7b2 Mon Sep 17 00:00:00 2001
+From: Adrian Johnson <ajohnson@redneon.com>
+Date: Fri, 8 Jul 2011 21:13:36 +0930
+Subject: cairo: assume printer pixel size is 1/600" when stroking 0 width
+ lines
+
+Fixes bug #39067.
+
+diff --git a/poppler/CairoOutputDev.cc b/poppler/CairoOutputDev.cc
+index 6d692d9..d560bea 100644
+--- a/poppler/CairoOutputDev.cc
++++ b/poppler/CairoOutputDev.cc
+@@ -408,6 +408,11 @@ void CairoOutputDev::updateLineWidth(GfxState *state) {
+     /* find out how big pixels (device unit) are in the x and y directions
+      * choose the smaller of the two as our line width */
+     double x = 1.0, y = 1.0;
++    if (printing) {
++      // assume printer pixel size is 1/600 inch
++      x = 72.0/600;
++      y = 72.0/600;
++    }
+     cairo_device_to_user_distance(cairo, &x, &y);
+     cairo_set_line_width (cairo, MIN(fabs(x),fabs(y)));
+   } else {
+-- 
+cgit v0.10.2
+
