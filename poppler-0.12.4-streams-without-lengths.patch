@@ -1,0 +1,29 @@
+From ea44c60645001ffea7d297f8549aaa4f5ce5e16c Mon Sep 17 00:00:00 2001
+From: Ilya Gorenbein <igorenbein@finjan.com>
+Date: Sun, 27 Dec 2009 15:27:00 +0100
+Subject: Try to work on streams without Length
+
+We have code that finds the Length if it's wrong so let that code do its job
+instead of returning a NULL stream
+
+diff --git a/poppler/Parser.cc b/poppler/Parser.cc
+index 05fba86..5f8e15d 100644
+--- a/poppler/Parser.cc
++++ b/poppler/Parser.cc
+@@ -15,6 +15,7 @@
+ //
+ // Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
+ // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
++// Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
+ //
+ // To see a description of the changes please see the Changelog file that
+ // came with your tarball or type make ChangeLog if you are building from git
+@@ -179,7 +180,7 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
+   } else {
+     error(getPos(), "Bad 'Length' attribute in stream");
+     obj.free();
+-    return NULL;
++    length = 0;
+   }
+ 
+   // check for length in damaged file
