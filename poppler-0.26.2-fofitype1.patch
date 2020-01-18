@@ -1,0 +1,21 @@
+commit f966b8766d40b2c912e69a1e17ef8cc4bd52be95
+Author: Carlos Garcia Campos <carlosgc@gnome.org>
+Date:   Tue Oct 21 16:42:27 2014 +0200
+
+    fofi: Fix a crash when parsing an invalid font due to a integer overflow
+    
+    This fixes a crash rendering trust_metrics.f2495.f0.pdf.
+
+diff --git a/fofi/FoFiType1.cc b/fofi/FoFiType1.cc
+index 8fa10a0..2245184 100644
+--- a/fofi/FoFiType1.cc
++++ b/fofi/FoFiType1.cc
+@@ -263,7 +263,7 @@ void FoFiType1::parse() {
+ 	    } else {
+ 	      break;
+ 	    }
+-	    for (; *p >= '0' && *p < '0' + base; ++p) {
++	    for (; *p >= '0' && *p < '0' + base && code < INT_MAX / (base + (*p - '0')); ++p) {
+ 	      code = code * base + (*p - '0');
+ 	    }
+ 	    for (; *p == ' ' || *p == '\t'; ++p) ;

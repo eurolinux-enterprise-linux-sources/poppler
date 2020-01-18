@@ -1,0 +1,41 @@
+--- poppler-0.26.5/cpp/Makefile.am
++++ poppler-0.26.5/cpp/Makefile.am
+@@ -67,4 +67,4 @@ libpoppler_cpp_la_LIBADD = 			\
+ 	$(top_builddir)/poppler/libpoppler.la	\
+ 	$(LIBICONV)
+ 
+-libpoppler_cpp_la_LDFLAGS = -version-info 2:0:2 @create_shared_lib@ @auto_import_flags@
++libpoppler_cpp_la_LDFLAGS = -version-info 12:0:2 @create_shared_lib@ @auto_import_flags@
+--- poppler-0.26.5/glib/Makefile.am
++++ poppler-0.26.5/glib/Makefile.am
+@@ -78,7 +78,7 @@ libpoppler_glib_la_LIBADD =				\
+ 	$(POPPLER_GLIB_LIBS)				\
+ 	$(FREETYPE_LIBS)
+ 
+-libpoppler_glib_la_LDFLAGS = -version-info 14:0:6 @create_shared_lib@ @auto_import_flags@
++libpoppler_glib_la_LDFLAGS = -version-info 24:0:6 @create_shared_lib@ @auto_import_flags@
+ 
+ BUILT_SOURCES =					\
+ 	poppler-enums.c				\
+--- poppler-0.26.5/glib/Poppler-0.18.gir
++++ poppler-0.26.5/glib/Poppler-0.18.gir
+@@ -13,7 +13,7 @@ and/or use gtk-doc annotations.  -->
+   <c:include name="poppler.h"/>
+   <namespace name="Poppler"
+              version="0.18"
+-             shared-library="libpoppler-glib.so.8"
++             shared-library="libpoppler-glib.so.18"
+              c:identifier-prefixes="Poppler"
+              c:symbol-prefixes="poppler">
+     <constant name="ANNOT_TEXT_ICON_CIRCLE"
+--- poppler-0.26.5/qt4/src/Makefile.am
++++ poppler-0.26.5/qt4/src/Makefile.am
+@@ -62,7 +62,7 @@ libpoppler_qt4_la_LIBADD = 			\
+ 	$(top_builddir)/poppler/libpoppler.la	\
+ 	$(POPPLER_QT4_LIBS)
+ 
+-libpoppler_qt4_la_LDFLAGS = -version-info 8:0:4 @create_shared_lib@ @auto_import_flags@
++libpoppler_qt4_la_LDFLAGS = -version-info 18:0:4 @create_shared_lib@ @auto_import_flags@
+ 
+ # This rule lets GNU make create any *.moc from the equivalent *.h
+ .h.moc:

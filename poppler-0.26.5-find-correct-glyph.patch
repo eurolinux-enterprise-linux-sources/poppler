@@ -1,0 +1,28 @@
+From 18016a2b647fa41d59a9926c59bc86ca859bba18 Mon Sep 17 00:00:00 2001
+From: Marek Kasik <mkasik@redhat.com>
+Date: Fri, 23 Oct 2015 10:15:47 +0200
+Subject: [PATCH] forms: Find correct glyph or return 0
+
+Function CharCodeToUnicode::mapToCharCode() could return
+wrong character code for given unicode character because
+of wrongly placed continue statement.
+---
+ poppler/CharCodeToUnicode.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/poppler/CharCodeToUnicode.cc b/poppler/CharCodeToUnicode.cc
+index 5576a4a..91f6ff2 100644
+--- a/poppler/CharCodeToUnicode.cc
++++ b/poppler/CharCodeToUnicode.cc
+@@ -656,7 +656,7 @@ int CharCodeToUnicode::mapToCharCode(Unicode* u, CharCode *c, int usize) {
+       //compare the string char by char
+       for (j=0; j<sMap[i].len; j++) {
+         if (sMap[i].u[j] != u[j]) {
+-          continue;
++          break;
+         }
+       }
+ 
+-- 
+2.4.3
+

@@ -1,0 +1,21 @@
+commit ee4a389872d86b619c677888da8f13f1f6c54472
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 20 22:32:30 2014 +1030
+
+    PDFDoc: fix crash when getPage() returns NULL
+    
+    Bug 85235
+
+diff --git a/poppler/PDFDoc.cc b/poppler/PDFDoc.cc
+index d1b5d7b..8fd5e18 100644
+--- a/poppler/PDFDoc.cc
++++ b/poppler/PDFDoc.cc
+@@ -626,7 +626,7 @@ int PDFDoc::savePageAs(GooString *name, int pageNo)
+   int keyLength;
+   xref->getEncryptionParameters(&fileKey, &encAlgorithm, &keyLength);
+ 
+-  if (pageNo < 1 || pageNo > getNumPages()) {
++  if (pageNo < 1 || pageNo > getNumPages() || !getCatalog()->getPage(pageNo)) {
+     error(errInternal, -1, "Illegal pageNo: {0:d}({1:d})", pageNo, getNumPages() );
+     return errOpenFile;
+   }

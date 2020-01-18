@@ -1,0 +1,11 @@
+--- poppler-0.26.5/utils/pdfseparate.cc
++++ poppler-0.26.5/utils/pdfseparate.cc
+@@ -95,7 +95,7 @@ bool extractPages (const char *srcFileNa
+     }
+   }
+   if (!foundmatch && firstPage != lastPage) {
+-    error(errSyntaxError, -1, "'{0:s}' must contain '%%d' if more than one page should be extracted", destFileName);
++    error(errSyntaxError, -1, "'{0:s}' must contain '%d' if more than one page should be extracted", destFileName);
+     free(auxDestFileName);
+     return false;
+   }
