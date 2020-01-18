@@ -1,0 +1,60 @@
+diff --git a/qt4/src/poppler-fontinfo.cc b/qt4/src/poppler-fontinfo.cc
+index 81aed71..a8ce1fc 100644
+--- a/qt4/src/poppler-fontinfo.cc
++++ b/qt4/src/poppler-fontinfo.cc
+@@ -50,6 +50,11 @@ QString FontInfo::name() const
+ 	return m_data->fontName;
+ }
+
++QString FontInfo::substituteName() const
++{
++	return m_data->fontSubstituteName;
++}
++
+ QString FontInfo::file() const
+ {
+ 	return m_data->fontFile;
+diff --git a/qt4/src/poppler-private.h b/qt4/src/poppler-private.h
+index 0d11e83..f0e9fa4 100644
+--- a/qt4/src/poppler-private.h
++++ b/qt4/src/poppler-private.h
+@@ -162,6 +162,7 @@ namespace Poppler {
+ 		FontInfoData( const FontInfoData &fid )
+ 		{
+ 			fontName = fid.fontName;
++			fontSubstituteName = fid.fontSubstituteName;
+ 			fontFile = fid.fontFile;
+ 			isEmbedded = fid.isEmbedded;
+ 			isSubset = fid.isSubset;
+@@ -172,6 +173,7 @@ namespace Poppler {
+ 		FontInfoData( ::FontInfo* fi )
+ 		{
+ 			if (fi->getName()) fontName = fi->getName()->getCString();
++			if (fi->getSubstituteName()) fontSubstituteName = fi->getSubstituteName()->getCString();
+ 			if (fi->getFile()) fontFile = fi->getFile()->getCString();
+ 			isEmbedded = fi->getEmbedded();
+ 			isSubset = fi->getSubset();
+@@ -180,6 +182,7 @@ namespace Poppler {
+ 		}
+
+ 		QString fontName;
++		QString fontSubstituteName;
+ 		QString fontFile;
+ 		bool isEmbedded : 1;
+ 		bool isSubset : 1;
+diff --git a/qt4/src/poppler-qt4.h b/qt4/src/poppler-qt4.h
+index 30295cf..d38a4a3 100644
+--- a/qt4/src/poppler-qt4.h
++++ b/qt4/src/poppler-qt4.h
+@@ -202,6 +202,11 @@ namespace Poppler {
+ 	*/
+ 	QString name() const;
+
++	/**
++	   The name of the substitute font. Can be QString::null if the font has no substitute font
++	*/
++	QString substituteName() const;
++
+ 	/**
+ 	   The path of the font file used to represent this font on this system,
+ 	   or a null string is the font is embedded

@@ -1,0 +1,97 @@
+--- poppler-0.26.5/poppler/CairoOutputDev.cc
++++ poppler-0.26.5/poppler/CairoOutputDev.cc
+@@ -837,11 +837,17 @@ GBool CairoOutputDev::tilingPatternFill(
+   cairo_pattern_t *pattern;
+   cairo_surface_t *surface;
+   cairo_matrix_t matrix;
++  cairo_matrix_t pattern_matrix;
+   cairo_t *old_cairo;
+   double xMin, yMin, xMax, yMax;
+   double width, height;
++  double scaleX, scaleY;
+   int surface_width, surface_height;
+   StrokePathClip *strokePathTmp;
++  GBool adjusted_stroke_width_tmp;
++  cairo_pattern_t *maskTmp;
++  double xoffset, yoffset;
++  double det;
+ 
+   width = bbox[2] - bbox[0];
+   height = bbox[3] - bbox[1];
+@@ -850,8 +856,20 @@ GBool CairoOutputDev::tilingPatternFill(
+     return gFalse;
+   /* TODO: implement the other cases here too */
+ 
+-  surface_width = (int) ceil (width);
+-  surface_height = (int) ceil (height);
++  // Find the width and height of the transformed pattern
++  cairo_get_matrix (cairo, &matrix);
++  cairo_matrix_init (&pattern_matrix, mat[0], mat[1], mat[2], mat[3], mat[4], mat[5]);
++  cairo_matrix_multiply (&matrix, &matrix, &pattern_matrix);
++
++  double widthX = width, widthY = 0;
++  cairo_matrix_transform_distance (&matrix, &widthX, &widthY);
++  surface_width = ceil (sqrt (widthX * widthX + widthY * widthY));
++
++  double heightX = 0, heightY = height;
++  cairo_matrix_transform_distance (&matrix, &heightX, &heightY);
++  surface_height = ceil (sqrt (heightX * heightX + heightY * heightY));
++  scaleX = surface_width / width;
++  scaleY = surface_height / height;
+ 
+   surface = cairo_surface_create_similar (cairo_get_target (cairo),
+ 					  CAIRO_CONTENT_COLOR_ALPHA,
+@@ -865,9 +883,15 @@ GBool CairoOutputDev::tilingPatternFill(
+ 
+   box.x1 = bbox[0]; box.y1 = bbox[1];
+   box.x2 = bbox[2]; box.y2 = bbox[3];
++  cairo_scale (cairo, scaleX, scaleY);
++  cairo_translate (cairo, -box.x1, -box.y1);
++
+   strokePathTmp = strokePathClip;
+-  strokePathClip = NULL;
+-  gfx = new Gfx(doc, this, resDict, &box, NULL, NULL, NULL, gfxA->getXRef());
++  strokePathClip = NULL;
++  adjusted_stroke_width_tmp = adjusted_stroke_width;
++  maskTmp = mask;
++  mask = NULL;
++  gfx = new Gfx(doc, this, resDict, &box, NULL, NULL, NULL, gfxA->getXRef());
+   if (paintType == 2)
+     inUncoloredPattern = gTrue;
+   gfx->display(str);
+@@ -875,6 +899,8 @@ GBool CairoOutputDev::tilingPatternFill(
+     inUncoloredPattern = gFalse;
+   delete gfx;
+   strokePathClip = strokePathTmp;
++  adjusted_stroke_width = adjusted_stroke_width_tmp;
++  mask = maskTmp;
+ 
+   pattern = cairo_pattern_create_for_surface (cairo_get_target (cairo));
+   cairo_destroy (cairo);
+@@ -882,14 +908,23 @@ GBool CairoOutputDev::tilingPatternFill(
+   if (cairo_pattern_status (pattern))
+     return gFalse;
+ 
++  det = pmat[0] * pmat[3] - pmat[1] * pmat[2];
++  if (fabs(det) < 0.000001)
++    return gFalse;
++
++  xoffset = round ((pmat[3] * pmat[4] - pmat[2] * pmat[5]) / (xStep * det));
++  yoffset = - round ((pmat[1] * pmat[4] - pmat[0] * pmat[5]) / (yStep * det));
++  pattern_matrix.x0 -= xoffset * pattern_matrix.xx * xStep + yoffset * pattern_matrix.xy * yStep;
++  pattern_matrix.y0 -= xoffset * pattern_matrix.yx * xStep + yoffset * pattern_matrix.yy * yStep;
++
+   state->getUserClipBBox(&xMin, &yMin, &xMax, &yMax);
+   cairo_rectangle (cairo, xMin, yMin, xMax - xMin, yMax - yMin);
+ 
+-  cairo_matrix_init_scale (&matrix, surface_width / width, surface_height / height);
++  cairo_matrix_init_scale (&matrix, scaleX, scaleY);
++  cairo_matrix_translate (&matrix, -box.x1, -box.y1);
+   cairo_pattern_set_matrix (pattern, &matrix);
+ 
+-  cairo_matrix_init (&matrix, mat[0], mat[1], mat[2], mat[3], mat[4], mat[5]);
+-  cairo_transform (cairo, &matrix);
++  cairo_transform (cairo, &pattern_matrix);
+   cairo_set_source (cairo, pattern);
+   cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
+   if (strokePathClip) {

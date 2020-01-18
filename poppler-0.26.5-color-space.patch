@@ -1,0 +1,106 @@
+--- poppler-0.26.5/poppler/CairoOutputDev.cc
++++ poppler-0.26.5/poppler/CairoOutputDev.cc
+@@ -2571,7 +2571,11 @@ void CairoOutputDev::drawSoftMaskedImage
+ 
+   cairo_surface_mark_dirty (image);
+ 
++  cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x1, state, NULL);
++  cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x2, colorMap, NULL);
+   setMimeData(str, ref, image);
++  cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x2, NULL, NULL);
++  cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x1, NULL, NULL);
+ 
+   pattern = cairo_pattern_create_for_surface (image);
+   cairo_surface_destroy (image);
+@@ -2674,24 +2678,72 @@ GBool CairoOutputDev::getStreamData (Str
+   return gTrue;
+ }
+ 
++static GBool colorMapHasIdentityDecodeMap(GfxImageColorMap *colorMap)
++{
++  for (int i = 0; i < colorMap->getNumPixelComps(); i++) {
++    if (colorMap->getDecodeLow(i) != 0.0 || colorMap->getDecodeHigh(i) != 1.0)
++      return gFalse;
++  }
++  return gTrue;
++}
++
+ void CairoOutputDev::setMimeData(Stream *str, Object *ref, cairo_surface_t *image)
+ {
+   char *strBuffer;
+   int len;
+   Object obj;
++  GfxColorSpace *colorSpace = NULL;
++  GfxState *state = NULL;
++  GfxImageColorMap *colorMap = NULL;
++
++  if (image != NULL)
++    {
++      state = (GfxState *) cairo_surface_get_user_data(image, (const cairo_user_data_key_t *) 0x1);
++      colorMap = (GfxImageColorMap *) cairo_surface_get_user_data(image, (const cairo_user_data_key_t *) 0x2);
++    }
+ 
+   if (!printing || !(str->getKind() == strDCT || str->getKind() == strJPX))
+     return;
+ 
++  if (state != NULL) {
++    str->getDict()->lookup("ColorSpace", &obj);
++    colorSpace = GfxColorSpace::parse(&obj, this, state);
++    obj.free();
++  }
++
+   // colorspace in stream dict may be different from colorspace in jpx
+   // data
+-  if (str->getKind() == strJPX) {
+-    GBool hasColorSpace = !str->getDict()->lookup("ColorSpace", &obj)->isNull();
+-    obj.free();
+-    if (hasColorSpace)
++  if (str->getKind() == strJPX && colorSpace)
++    {
++      delete colorSpace;
+       return;
++    }
++
++  // only embed mime data for gray, rgb, and cmyk colorspaces.
++  if (colorSpace) {
++    GfxColorSpaceMode mode = colorSpace->getMode();
++    delete colorSpace;
++    switch (mode) {
++      case csDeviceGray:
++      case csCalGray:
++      case csDeviceRGB:
++      case csCalRGB:
++      case csDeviceCMYK:
++      case csICCBased:
++	break;
++
++      case csLab:
++      case csIndexed:
++      case csSeparation:
++      case csDeviceN:
++      case csPattern:
++	return;
++    }
+   }
+ 
++  if (colorMap && !colorMapHasIdentityDecodeMap(colorMap))
++    return;
++
+   if (getStreamData (str->getNextStream(), &strBuffer, &len)) {
+     cairo_status_t st;
+ 
+@@ -2908,8 +2960,13 @@ void CairoOutputDev::drawImage(GfxState
+   if (width == widthA && height == heightA)
+     filter = getFilterForSurface (image, interpolate);
+ 
+-  if (!inlineImg) /* don't read stream twice if it is an inline image */
++  if (!inlineImg) { /* don't read stream twice if it is an inline image */
++    cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x1, state, NULL);
++    cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x2, colorMap, NULL);
+     setMimeData(str, ref, image);
++    cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x2, NULL, NULL);
++    cairo_surface_set_user_data(image, (const cairo_user_data_key_t *) 0x1, NULL, NULL);
++  }
+ 
+   pattern = cairo_pattern_create_for_surface (image);
+   cairo_surface_destroy (image);

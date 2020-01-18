@@ -1,0 +1,15 @@
+--- poppler-0.26.5/utils/pdfunite.cc.the	2014-07-25 00:28:01.000000000 +0200
++++ poppler-0.26.5/utils/pdfunite.cc	2019-02-20 11:37:39.405536641 +0100
+@@ -80,6 +80,12 @@ int main (int argc, char *argv[])
+     GooString *gfileName = new GooString(argv[i]);
+     PDFDoc *doc = new PDFDoc(gfileName, NULL, NULL, NULL);
+     if (doc->isOk() && !doc->isEncrypted()) {
++      for (j = 1; j <= doc->getNumPages(); j++) {
++        if (doc->getCatalog()->getPage(j) == NULL) {
++          error(errSyntaxError, -1, "Page number {0:d} is missing in '{1:s}')", j, argv[i]);
++          return -1;
++        }
++      }
+       docs.push_back(doc);
+       if (doc->getPDFMajorVersion() > majorVersion) {
+         majorVersion = doc->getPDFMajorVersion();
