@@ -1,7 +1,7 @@
 Summary: PDF rendering library
 Name:    poppler
 Version: 0.26.5
-Release: 17%{?dist}
+Release: 20%{?dist}
 License: (GPLv2 or GPLv3) and GPLv2+ and LGPLv2+ and MIT
 Group:   Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -59,6 +59,15 @@ Patch18: poppler-0.26.5-fix-splash.patch
 Patch19: CVE-2017-9776.patch
 Patch20: CVE-2017-9775-1.patch
 Patch21: CVE-2017-9775-2.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1588610
+Patch22: poppler-0.26.5-annotink.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1579180
+Patch23: poppler-0.26.5-infinite-recursion.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1602838
+Patch24: poppler-0.26.5-negative-object-number.patch
 
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
@@ -197,6 +206,9 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 %patch19 -p1 -b .CVE-2017-9776
 %patch20 -p1 -b .CVE-2017-9775-1
 %patch21 -p1 -b .CVE-2017-9775-1
+%patch22 -p1 -b .annotink
+%patch23 -p1 -b .infinite-recursion
+%patch24 -p1 -b .negative-object-number
 
 # hammer to nuke rpaths, recheck on new releases
 autoreconf -i -f
@@ -318,8 +330,20 @@ test "$(pkg-config --modversion poppler-splash)" = "%{version}"
 
 
 %changelog
-* Fri Aug 18 2016 Caolán McNamara <caolanm@redhat.com> - 0.26.5-17
-- Resolves: rhbz#1482934 CVE-2017-9776
+* Mon Jul 30 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-20
+- Fix crash when Object has negative number (CVE-2018-13988)
+- Resolves: #1609036
+
+* Thu Jun 21 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-19
+- Fix infinite recursion on malformed documents (CVE-2017-18267)
+- Resolves: #1579180
+
+* Thu Jun 21 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-18
+- Fix crash inn AnnotInk::draw() (CVE-2018-10768)
+- Resolves: #1588610
+
+* Thu Aug 18 2016 Caolán McNamara <caolanm@redhat.com> - 0.26.5-17
+- Resolves:rhbz#1482935 CVE-2017-9776
 
 * Wed Mar  9 2016 Martin Hatina <mhatina@redhat.com> - 0.26.5-16
 - Fix crash in Splash
