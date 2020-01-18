@@ -1,7 +1,7 @@
 Summary: PDF rendering library
 Name:    poppler
 Version: 0.26.5
-Release: 16%{?dist}
+Release: 17%{?dist}
 License: (GPLv2 or GPLv3) and GPLv2+ and LGPLv2+ and MIT
 Group:   Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -55,6 +55,10 @@ Patch17: poppler-0.26.5-check-array-length.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1299492
 Patch18: poppler-0.26.5-fix-splash.patch
+
+Patch19: CVE-2017-9776.patch
+Patch20: CVE-2017-9775-1.patch
+Patch21: CVE-2017-9775-2.patch
 
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
@@ -190,6 +194,9 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 %patch16 -p1 -b .find-correct-glyph
 %patch17 -p1 -b .check-array-length
 %patch18 -p1 -b .fix-splash
+%patch19 -p1 -b .CVE-2017-9776
+%patch20 -p1 -b .CVE-2017-9775-1
+%patch21 -p1 -b .CVE-2017-9775-1
 
 # hammer to nuke rpaths, recheck on new releases
 autoreconf -i -f
@@ -311,6 +318,9 @@ test "$(pkg-config --modversion poppler-splash)" = "%{version}"
 
 
 %changelog
+* Fri Aug 18 2016 Caolán McNamara <caolanm@redhat.com> - 0.26.5-17
+- Resolves: rhbz#1482934 CVE-2017-9776
+
 * Wed Mar  9 2016 Martin Hatina <mhatina@redhat.com> - 0.26.5-16
 - Fix crash in Splash
 - Resolves: #1299492
